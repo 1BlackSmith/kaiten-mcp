@@ -8,6 +8,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from mcp.types import CallToolResult, TextContent
 
+from kaiten_mcp.app import COMPACT_JSON_THRESHOLD, FILE_OUTPUT_THRESHOLD
 from kaiten_mcp.server import ALL_TOOLS, call_tool
 
 
@@ -22,7 +23,7 @@ def _text(result: CallToolResult) -> str:
 @pytest.fixture(autouse=True)
 def _inject_client():
     """Inject a mock client so get_client() does not create a real one."""
-    with patch("kaiten_mcp.server._client", object()):
+    with patch("kaiten_mcp.app._client", object()):
         yield
 
 
@@ -49,7 +50,7 @@ class TestCompactJsonSerialization:
 
     async def test_large_response_uses_compact_json(self):
         """Responses exceeding threshold should use compact JSON."""
-        from kaiten_mcp.server import COMPACT_JSON_THRESHOLD
+        from kaiten_mcp.app import COMPACT_JSON_THRESHOLD
 
         # Create data that produces indented JSON larger than the threshold
         item_count = (COMPACT_JSON_THRESHOLD // 20) + 50
@@ -72,7 +73,7 @@ class TestCompactJsonSerialization:
 
     async def test_compact_json_is_valid(self):
         """Compact JSON output should be valid parseable JSON."""
-        from kaiten_mcp.server import COMPACT_JSON_THRESHOLD
+        from kaiten_mcp.app import COMPACT_JSON_THRESHOLD
 
         item_count = (COMPACT_JSON_THRESHOLD // 20) + 50
         large_data = [{"id": i, "val": "test"} for i in range(item_count)]
@@ -99,7 +100,7 @@ class TestFileBasedOutput:
 
     async def test_file_output_when_configured(self):
         """When KAITEN_MCP_OUTPUT_DIR is set, oversized responses save to file."""
-        from kaiten_mcp.server import FILE_OUTPUT_THRESHOLD
+        from kaiten_mcp.app import FILE_OUTPUT_THRESHOLD
 
         # Create data large enough to exceed FILE_OUTPUT_THRESHOLD
         item_count = (FILE_OUTPUT_THRESHOLD // 30) + 100
@@ -132,7 +133,7 @@ class TestFileBasedOutput:
 
     async def test_no_file_output_without_env(self):
         """Without KAITEN_MCP_OUTPUT_DIR, oversized responses are returned inline."""
-        from kaiten_mcp.server import FILE_OUTPUT_THRESHOLD
+        from kaiten_mcp.app import FILE_OUTPUT_THRESHOLD
 
         item_count = (FILE_OUTPUT_THRESHOLD // 30) + 100
         large_data = [{"id": i, "data": "x" * 20} for i in range(item_count)]
@@ -269,7 +270,7 @@ class TestErrorResilience:
                 },
             ),
             patch(
-                "kaiten_mcp.server.get_client",
+                "kaiten_mcp.app.get_client",
                 side_effect=ValueError(
                     "Kaiten host configuration is required: set KAITEN_BASE_URL or "
                     "KAITEN_SUBDOMAIN (KAITEN_DOMAIN is also accepted as a deprecated fallback)"

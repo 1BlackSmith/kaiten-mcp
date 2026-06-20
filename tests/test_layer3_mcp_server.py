@@ -8,7 +8,8 @@ import respx
 from mcp.types import CallToolResult, TextContent, Tool
 
 from kaiten_mcp.client import KaitenApiError, KaitenClient
-from kaiten_mcp.server import ALL_TOOLS, call_tool, get_client, list_tools
+from kaiten_mcp.app import get_client
+from kaiten_mcp.server import ALL_TOOLS, call_tool, list_tools
 
 BASE_URL = "https://test-company.kaiten.ru/api/latest"
 
@@ -17,7 +18,7 @@ BASE_URL = "https://test-company.kaiten.ru/api/latest"
 def _inject_client():
     """Inject a real KaitenClient (with test credentials) into the server module."""
     client = KaitenClient(domain="test-company", token="test-token")
-    with patch("kaiten_mcp.server._client", client):
+    with patch("kaiten_mcp.app._client", client):
         yield client
 
 
@@ -239,7 +240,7 @@ async def test_list_tools_names_match_all_tools():
 
 def test_get_client_creates_kaiten_client():
     """get_client() creates a KaitenClient when _client is None."""
-    import kaiten_mcp.server as srv
+    import kaiten_mcp.app as srv
 
     original = srv._client
     try:

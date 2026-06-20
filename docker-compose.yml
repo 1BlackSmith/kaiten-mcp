@@ -40,3 +40,44 @@ services:
     pids_limit: 256
     mem_limit: 512m
     env_file: .env
+
+  # Operator profile: 104 tools, no admin/SD/webhooks (for Cursor / LLM)
+  kaiten-mcp-operator-dev:
+    build:
+      context: .
+      target: deps
+    image: kaiten-mcp:dev
+    entrypoint: ["kaiten-mcp-operator"]
+    stdin_open: true
+    tty: false
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=64m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 256
+    mem_limit: 512m
+    env_file: .env
+    volumes:
+      - ./src:/app/src:ro
+
+  kaiten-mcp-operator:
+    build:
+      context: .
+      target: baked
+    image: kaiten-mcp:latest
+    entrypoint: ["kaiten-mcp-operator"]
+    stdin_open: true
+    tty: false
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=64m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 256
+    mem_limit: 512m
+    env_file: .env

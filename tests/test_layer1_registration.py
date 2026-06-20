@@ -6,7 +6,8 @@ Verify that ALL 246 MCP tools are properly registered and discoverable.
 import asyncio
 import inspect
 
-from kaiten_mcp.server import ALL_TOOLS, TOOL_MODULES, list_tools
+from kaiten_mcp.registry import TOOL_MODULES
+from kaiten_mcp.server import ALL_TOOLS, list_tools
 
 
 class TestToolRegistration:

@@ -70,6 +70,41 @@ cp .env.example .env
 
 Потом откройте `.env` и оставьте только подходящий вам вариант host-конфига.
 
+## Operator-профиль (104 tools, для Cursor / LLM)
+
+Отдельная команда `kaiten-mcp-operator` — тот же API-токен, но без админ-инструментов (Service Desk, webhooks, automations, API keys, удаление space/card/document и т.д.). Список: `src/kaiten_mcp/profiles/operator.py`.
+
+**Python (venv):**
+
+```bash
+.venv/bin/pip install -e .
+```
+
+**Cursor** (`~/.cursor/mcp.json` или Settings → MCP):
+
+```json
+{
+  "mcpServers": {
+    "kaiten": {
+      "command": "/path/to/kaiten-mcp/.venv/bin/kaiten-mcp-operator",
+      "env": {
+        "KAITEN_SUBDOMAIN": "yourcompany",
+        "KAITEN_TOKEN": "your-api-token"
+      }
+    }
+  }
+}
+```
+
+**Docker Compose:**
+
+```bash
+claude mcp add kaiten-operator \
+  -- docker compose --project-directory /path/to/kaiten-mcp run --rm -T kaiten-mcp-operator-dev
+```
+
+Полный сервер (`kaiten-mcp`, 246 tools) остаётся для администрирования.
+
 ## Подключение к Claude Code
 
 ### Способ 1: Docker (рекомендуется)
